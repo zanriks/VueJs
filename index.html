@@ -25,15 +25,15 @@
                 <!-- Практическая работа №6 (перечеркивание текста) -->
                 <p v-else :class="{outOfStock: !inStock}" :style="{textDecoration: 'line-through'}">Out of Stock</p>
             
-                <span v-show="onSale">Распродажа!!!!!</span>
+                <span>{{ sale }}</span>
                 <ul>
                     <li v-for="detail in details">{{ detail }}</li>
                 </ul>
                 <div class="color-box"
-                v-for="variant in variants"
+                v-for="(variant, index) in variants"
                 :key="variant.variantId"
                 :style="{backgroundColor:variant.variantColor}"
-                @mouseover="updateProduct(variant.variantImage)">
+                @mouseover="updateProduct(index)">
                 </div>
                 <div v-for="size in sizes">
                     <p> {{ size }} </p>
