@@ -2,6 +2,7 @@ let app = new Vue({
     el: '#app', // Свойство для подключения экземпляра Vue к элементу страницы
     data: {
         product: "Socks", // Место для хранения данных в Vue
+        brand: 'Vue Mastery',
         description: "A pair of warm, fuzzy socks", // Практическая работа №1 (добавление ключа к экземпляру)
         image: "./assets/vmSocks-blue-onWhite.jpg",
         altText: "A pair of socks",
@@ -34,9 +35,15 @@ let app = new Vue({
         subToCart(){
             if (this.cart > 0) {
                 this.cart -= 1
-            }
+            } // Практическая работа №5 (Добавление кнопки вычета)
         }
     },
+    computed: {
+        title() {
+            return this.brand + ' ' + this.product;
+        }
+    }
+
 })
 
 // Vue - это реактивный фреймворк, данные связаны со всеми местами веб-страницы, в которых есть ссылки на эти данные.
