@@ -1,3 +1,44 @@
+Vue.component('product-tabs', {
+    props: {
+        reviews: {
+            type: Array,
+            required: false
+        }
+    },
+    template: `
+     <div>   
+       <ul>
+         <span class="tab"
+               :class="{ activeTab: selectedTab === tab }"
+               v-for="(tab, index) in tabs"
+               @click="selectedTab = tab"
+         >{{ tab }}</span>
+       </ul>
+       <div v-show="selectedTab === 'Reviews'">
+         <p v-if="!reviews.length">There are no reviews yet.</p>
+         <ul>
+           <li v-for="review in reviews">
+           <p>{{ review.name }}</p>
+           <p>Rating: {{ review.rating }}</p>
+           <p>{{ review.review }}</p>
+           </li>
+         </ul>
+       </div>
+       <div v-show="selectedTab === 'Make a Review'">
+         <product-review @review-submitted="addReview"></product-review>
+       </div>
+     </div>
+`,
+    data() {
+        return {
+            tabs: ['Reviews', 'Make a Review'],
+            selectedTab: 'Reviews'  // устанавливается с помощью @click
+        }
+    }
+})
+
+
+
 Vue.component('product-review', {
     template: `
         <form class="review-form" @submit.prevent="onSubmit">
@@ -122,18 +163,6 @@ Vue.component('product', {
                 :class="{disabledButton: !inStock}"
             >Add to cart</button>
             <button v-on:click="subFromCart">Sub to cart</button>
-        </div>
-        <div>
-            <h2>Reviews</h2>
-            <p v-if="!reviews.length">There are no reviews yet.</p>
-            <ul>
-                  <li v-for="review in reviews">
-                      <p>{{ review.name }}</p>
-                      <p>Rating: {{ review.rating }}</p>
-                      <p>Recommend: {{ review.recommend === 'yes' ? 'Yes' : 'No' }}</p>
-                      <p>{{ review.review }}</p>
-                  </li>
-            </ul>
         </div>
         <product-review @review-submitted="addReview"></product-review>
     </div>
