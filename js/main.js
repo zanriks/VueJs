@@ -48,7 +48,7 @@ Vue.component('product', {
                 :disabled="!inStock"
                 :class="{disabledButton: !inStock}"
             >Add to cart</button>
-            <button v-on:click="subToCart">Sub to cart</button>
+            <button v-on:click="subFromCart">Sub to cart</button>
         </div>
     </div>
     `,
@@ -81,14 +81,16 @@ Vue.component('product', {
     },
     methods: {
         addToCart() {
-            this.$emit('add-to-cart')
+            this.$emit('add-to-cart',
+            this.variants[this.selectedVariant].variantId);
+        },
+        subFromCart() {
+            this.$emit('sub-from-cart',
+            this.variants[this.selectedVariant].variantId)
         },
         updateProduct(index) {
             this.selectedVariant = index
         },
-        subToCart(){
-            this.$emit('sub-from-cart')  // ✅ Эмитим событие
-        }
     },
     computed: {
         title() {
@@ -122,15 +124,16 @@ let app = new Vue({
     el: '#app',
     data: {
         premium: true,
-        cart: 0,
+        cart: []
     },
     methods: {
-        updateCart() {
-            this.cart += 1;
+        updateCart(id) {
+            this.cart.push(id)
         },
-        subFromCart() {
-            if (this.cart > 0) {
-                this.cart -= 1;
+        removeFromCart(id) {
+            const index = this.cart.indexOf(id)
+            if (index > -1) {
+                this.cart.splice(index, 1);
             }
         }
     }
