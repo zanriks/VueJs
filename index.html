@@ -6,10 +6,18 @@
     <title>Document</title>
     <script defer src="js/vue.min.js"></script>
     <script defer src="js/main.js"></script>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
     <div id="app">
-        <notes-board></notes-board>
+        <div class="cart">
+            <p>Cart({{ cart.length }})</p>
+        </div>
+        <product
+                :premium="premium"
+                @add-to-cart="updateCart"
+                @sub-from-cart="removeFromCart"
+        ></product>
     </div>
 </body>
 </html>
