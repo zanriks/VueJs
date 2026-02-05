@@ -13,7 +13,7 @@ Vue.component('product-tabs', {
         details: {
             type: Array,
             required: true
-            }
+        }
     },
     template: `
     <div>
@@ -28,6 +28,7 @@ Vue.component('product-tabs', {
            {{ tab }}
          </span>
        </ul>
+       
        <div v-show="selectedTab === 'Reviews'" class="tab-content">
          <p v-if="!reviews.length">There are no reviews yet.</p>
          <ul v-else>
@@ -39,6 +40,7 @@ Vue.component('product-tabs', {
            </li>
          </ul>
        </div>
+
        <div v-show="selectedTab === 'Make a Review'" class="tab-content">
          <product-review></product-review>
        </div>
@@ -68,12 +70,14 @@ Vue.component('product-tabs', {
         }
     }
 })
+
 Vue.component('product-review', {
     template: `
         <form class="review-form" @submit.prevent="onSubmit">
             <p v-if="errors.length">
                 <b>Please correct the following error(s):</b>
                 <ul>
+                    <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
                  <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
                 </ul>
             </p>
@@ -116,7 +120,7 @@ Vue.component('product-review', {
             errors: [],
         }
     },
-    methods:{
+    methods: {
         onSubmit() {
             this.errors = []
             if(this.name && this.review && this.rating && this.recommend) {
@@ -136,9 +140,9 @@ Vue.component('product-review', {
                 if(!this.review) this.errors.push("Review required.")
                 if(!this.rating) this.errors.push("Rating required.")
                 if(!this.recommend) this.errors.push("Recommend required.")
-        }
+            }
+        },
     }
-}
 })
 
 Vue.component('product-details', {
@@ -183,11 +187,26 @@ Vue.component('product', {
                 :style="{backgroundColor: variant.variantColor}"
                 @mouseover="updateProduct(index)">
             </div>
-            <div class="sizes">
-                <span v-for="size in sizes" :key="size" class="size-tag">
-                    {{ size }}
-                </span>
+            
+            <div class="price">
+                <p v-if="discount > 0" class="original-price" style="text-decoration: line-through;">
+                    Цена: {{ currentPrice.toFixed(2) }}
+                </p>
+                <p v-if="discount > 0" class="discount-price">
+                    Скидка: {{ discount }}% Вы сохраните - {{ savings.toFixed(2) }}
+                </p>
+                <p class="current-price">
+                    <strong>Цена со скидкой: {{ finalPrice.toFixed(2) }}</strong>
+                </p>
             </div>
+            
+            <div class="sizes">
+            Доступные размеры: 
+                <span v-for="size in sizes" :key="size" class="size-tag">
+                  {{ size + ','}}
+                </span>
+            </div>            
+            <p v-if="reviews.length">Рейтинг товара: {{ averageRating }}</p>
             <button 
                 v-on:click="addToCart"
                 :disabled="!inStock"
@@ -195,6 +214,7 @@ Vue.component('product', {
             >Add to cart</button>
             <button v-on:click="subFromCart">Sub from cart</button>
         </div>
+
         <product-tabs 
           :reviews="reviews" 
           :shipping="shipping"
@@ -212,18 +232,21 @@ Vue.component('product', {
             link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks",
             onSale: true,
             details: ['80% cotton', '20% polyester', 'Gender-neutral'],
+            discount: 17,
             variants: [
                 {
                     variantId: 2234,
                     variantColor: 'green',
                     variantImage: "./assets/vmSocks-green-onWhite.jpg",
                     variantQuantity: 10,
+                    currentPrice: 560,
                 },
                 {
                     variantId: 2235,
                     variantColor: 'blue',
                     variantImage: "./assets/vmSocks-blue-onWhite.jpg",
                     variantQuantity: 0,
+                    currentPrice: 310,
                 }
             ],
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
@@ -235,11 +258,11 @@ Vue.component('product', {
             this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
         },
         subFromCart() {
-             this.$emit('sub-from-cart', this.variants[this.selectedVariant].variantId)
+            this.$emit('sub-from-cart', this.variants[this.selectedVariant].variantId)
         },
         updateProduct(index) {
             this.selectedVariant = index
-            }
+        },
     },
     mounted() {
         eventBus.$on('review-submitted', productReview => {
@@ -259,7 +282,7 @@ Vue.component('product', {
         sale() {
             if (this.onSale) {
                 return `Распродажа! ${this.brand} ${this.product}`
-                } else {
+            } else {
                 return `${this.brand} ${this.product} - распродажа не проводится`
             }
         },
@@ -269,8 +292,25 @@ Vue.component('product', {
             } else {
                 return 2.99
             }
+        },
+        averageRating() {
+            if (this.reviews.length === 0) return 0
+            let total = this.reviews.reduce((c, review) => c + review.rating, 0)
+            return (total / this.reviews.length).toFixed(2)
+        },
+        currentPrice() {
+            return this.variants[this.selectedVariant].currentPrice
+        },
+        finalPrice() {
+            if (this.discount > 0) {
+                return this.currentPrice * (1 - this.discount / 100)
+            }
+            return this.currentPrice
+        },
+        savings() {
+            return this.currentPrice - this.finalPrice
         }
-        }
+    }
 })
 
 let app = new Vue({
